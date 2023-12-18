@@ -102,6 +102,7 @@ export class SessionRecording {
     private _linkedFlag: string | null = null
     private _sampleRate: number | null = null
     private _minimumDuration: number | null = null
+    private savedSnapshots: any[]
 
     // Util to help developers working on this feature manually override
     _forceAllowLocalhostNetworkCapture = false
@@ -204,6 +205,7 @@ export class SessionRecording {
         this._endpoint = BASE_ENDPOINT
         this.stopRrweb = undefined
         this.receivedDecide = false
+        this.savedSnapshots = []
 
         window?.addEventListener('beforeunload', () => {
             this._flushBuffer()
@@ -669,12 +671,18 @@ export class SessionRecording {
         }
 
         if (this.buffer && this.buffer.data.length !== 0) {
-            this._captureSnapshot({
+            this.savedSnapshots.push({
                 $snapshot_bytes: this.buffer.size,
                 $snapshot_data: this.buffer.data,
                 $session_id: this.buffer.sessionId,
                 $window_id: this.buffer.windowId,
             })
+
+            if (this.buffer && this.buffer.data.length !== 0 && this.instance.config.send_session_recording) {
+                this.savedSnapshots.forEach((snapshot) => {
+                    this._captureSnapshot(snapshot)
+                })
+            }
 
             return this.clearBuffer()
         } else {

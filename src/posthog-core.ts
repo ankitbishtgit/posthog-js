@@ -161,6 +161,7 @@ export const defaultConfig = (): PostHogConfig => ({
     bootstrap: {},
     disable_compression: false,
     session_idle_timeout_seconds: 30 * 60, // 30 minutes
+    send_session_recording: true,
 })
 
 /**
@@ -1760,6 +1761,9 @@ export class PostHog {
         this.set_config({ disable_session_recording: true })
     }
 
+    sendSessionRecording(): void{
+        this.set_config({ send_session_recording : true })
+    }
     /**
      * returns a boolean indicating whether session recording
      * is currently running
